@@ -1,0 +1,230 @@
+﻿<div class="card-box mb-30" style="padding:10px;">
+   
+    <div class="table-responsive"> 
+        <table class="data-table table stripe hover nowrap" id="tblMaterialRequisitionList" style="width: 100%; white-space: nowrap; font-size: 8.0pt">
+            <thead>
+                <tr>
+                  
+                    <th class="text-center max-desktop">Requisiton ID</th>
+                    <th class="text-center max-desktop">Requisiton Number</th>
+                    <th class="text-center max-desktop">Requisiton Date</th>
+                    <th class="text-center max-desktop">Material Description</th>
+                    <th class="text-center max-desktop">Quantity</th>
+                    <th class="text-center max-desktop">Unit</th>
+                    <th class="text-center max-desktop">Expected Delivery Date</th>
+                    <th class="text-center max-desktop">Select</th>
+
+                </tr>
+            </thead>
+        </table>
+    </div>
+</div>
+
+<div style="display:none;" id="div_ToPrint">
+</div>
+
+<!-- js -->
+
+<script src="~/src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+<script src="~/src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+<script src="~/src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+<script src="~/src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+<!-- buttons for Export datatable -->
+<script src="~/src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+<script src="~/src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+<script src="~/src/plugins/datatables/js/buttons.print.min.js"></script>
+<script src="~/src/plugins/datatables/js/buttons.html5.min.js"></script>
+<script src="~/src/plugins/datatables/js/buttons.flash.min.js"></script>
+<script src="~/src/plugins/datatables/js/pdfmake.min.js"></script>
+<script src="~/src/plugins/datatables/js/vfs_fonts.js"></script>
+<!-- Datatable Setting js -->
+<script src="~/vendors/scripts/datatable-setting.js"></script>
+
+
+<style>
+    .dataTable > thead > tr > th[class*="sort"]:before,
+    .dataTable > thead > tr > th[class*="sort"]:after {
+        content: "" !important;
+    }
+
+    .DataTables_sort_icon, .css_right, .ui-icon, .ui-icon-caret-2-n-s {
+        display: none !important;
+    }
+
+    .dataTables_processing {
+        z-index: 3000;
+    }
+    .table td, .table th {
+        padding: 0.25rem;
+        vertical-align: top;
+        border: 1px solid #dee2e6; 
+    }
+
+    .table th {
+        background-color:#aab2ba;
+    }
+</style>
+ 
+<script>
+    $(document).ready(function () {
+
+        var table = $('#tblMaterialRequisitionList').DataTable({
+            destroy: true,
+            "ajax": {
+                "url": "../Material/_Material_Requisition_DataList",
+                "type": "POST",
+                "data": function (d) {
+                    d.branch_code = $("#ddlBranch option:selected").val() == '' ? '0' : $("#ddlBranch option:selected").val();
+                    d.fDate = $("#txtFromDT").val();
+                    d.tDate = $("#txtToDT").val();
+
+                },
+                "datatype": "json"
+            },
+            "columns": [
+
+                { "data": "REQUISITION_ID", "name": "REQUISITION_ID", "className": "text-center" },
+                { "data": "REQUISITION_CODE", "name": "REQUISITION_CODE", "className": "text-center" },
+                { "data": "REQUISITION_DATE", "name": "REQUISITION_DATE", "className": "text-left" },
+                { "data": "Material_Id", "name": "Material_Id", "className": "text-center" },
+                { "data": "Qty", "name": "Qty", "className": "text-left" },
+                { "data": "Unit", "name": "Unit", "className": "text-center" },
+                { "data": "Select", "name": "Select", "className": "text-left" }
+            ]
+           ,
+            "columnDefs": [
+                {
+                    className: "Requisition_ID",
+                    "targets": [0],
+                    "visible": false,
+                    "searchable": false
+                }
+            ],
+            "serverSide": "true",
+            "order": [0, "asc"],
+            "processing": "true",
+            "language": {
+                "processing": '<i class="fa fa-spinner fa-spin fa-2x fa-fw"></i><span class="sr-only">Loading...</span>',
+            },
+            "oLanguage": {
+                "sSearch": "Quick Search:"
+            },
+            responsive: true
+
+        });
+
+        
+
+ 
+        $('#tblMaterialRequisitionList tbody').on('click', 'tr', function (e) {
+
+            if (CheckSession(e) == 1) {
+                var data = table.row($(this).parent()).data();
+                var Requisition_ID = data['Requisition_ID'];
+
+                $('#hdnRequisition_ID').val(Requisition_ID);
+
+
+                if (parseInt(Requisition_ID) > 0) {
+                    //$('#model-Sheet-dtl').modal('show');
+                    //$("#divPartialModel").load("MaterialRequisitionEntry/Material", { Requisition_ID: Requisition_ID });
+                    $('#BAActionViewModal').modal('show');
+                    $('#divPartialModel').slideDown('slow');
+                }
+
+                var REQUISITION_CODE = data['REQUISITION_CODE'];
+            }
+        });
+
+
+        @*$('#tblMaterialRequisitionList tbody').on('click', '[id*=spnEdit_]', function (e) {
+            if (CheckSession(e) == 1) {
+                var data = table.row($(this).parent()).data();
+                var TM_ID = data['TM_ID'];
+                var data = { TM_ID:TM_ID };
+                var url = '@Url.Action("MixDesign_Edit", "MixDesign")' + '?TM_ID=' + TM_ID;
+                window.location.href = url;
+            }
+        });
+
+
+        $('#tblMaterialRequisitionList tbody').on('click', '[id*=spnLockOpen_]', function (e) {
+            if (CheckSession(e) == 1) {
+                var data = table.row($(this).parent()).data();
+                var SAH_ID = data['SAH_ID'];
+                if (parseInt(SAH_ID) > 0) {
+                    $.ajax({
+                        url: '../AgQualityMngt/SieveAnalysisTest_Lock',
+                        type: 'POST',
+                        dataType: "json",
+                        data: { SAH_ID: SAH_ID },
+                        success: function (json, textStatus, xhr) {
+
+                            if (json == "1") {
+                                $("#divPartial").load("_SieveAnalysis_List/AgQualityMngt");
+                                $("#divPartial").css("display", "block");
+
+                            }
+                            else {
+
+                            }
+                        },
+                        error: function (result) {
+                            alert(result);
+                        }
+                    });
+
+                }
+
+            }
+        });*@
+
+
+        //$('#tblMaterialRequisitionList tbody').on('click', '[id*=spnPrint_]', function (e) {
+        //    if (CheckSession(e) == 1) {
+        //        var data = table.row($(this).parent()).data();
+        //        var SAH_ID = data['SAH_ID'];
+        //        if (parseInt(SAH_ID) > 0) {
+        //            $.ajax({
+        //                url: '../AgQualityMngt/GetSieveAnalysisHTML',
+        //                type: 'GET',
+        //                dataType: "json",
+        //                data: { SAH_ID: SAH_ID },
+        //                success: function (json, textStatus, xhr) {
+        //                    $("#div_ToPrint").empty();
+
+        //                    if (json != "") {
+        //                        $("#div_ToPrint").append(json);
+        //                        Print_Div();
+        //                    }
+        //                    else {
+        //                        $('#warningMessage').html('<b style="color:red;">Voucher is not found.</b>');
+        //                    }
+        //                },
+        //                error: function (result) {
+        //                    alert(result);
+        //                }
+        //            });
+
+        //        }
+
+        //    }
+        //});
+
+        function Print_Div() {
+            var divToPrint = document.getElementById('div_ToPrint');
+            var popupWin = window.open('', '_blank', 'width=1100,height=500');
+            popupWin.document.write('<html><head><style type="text/css">@@media print {table, #wrapper {max-height: 100%; margin: 0 !important;padding: 0 !important; overflow: hidden;}}  body{-webkit-print-color-adjust: exact;margin: 0 !important;padding: 0 !important;} '
+            + 'td {padding-left: 5px;padding-right: 5px;font-family: Calibri Light;}</style>'
+            + '</head><body onload="window.print()">'
+
+            + divToPrint.innerHTML + '</html>');
+
+            popupWin.document.close();
+            setTimeout(function () {
+                popupWin.close();
+            }, 500);
+        }
+
+    });
+</script>

@@ -1,0 +1,142 @@
+﻿@model BusinessLayer.Entity.Material_Entry 
+<style>
+    .form-group > label {
+        font-weight: 800;
+    }
+
+    .code {
+        color:red;
+        font-weight:bold;
+        font-size:18px;
+    }
+</style>
+
+ 
+<div class="form-group row">
+    <label class="col-sm-12 col-md-2">REQUISITION CODE</label>
+    <div class="col-sm-12 col-md-4">
+        : @Model.REQUISITION_CODE
+    </div>
+    <label class="col-sm-12 col-md-2"></label>
+    <div class="col-sm-12 col-md-4">
+        : <b class="code">@Model.Requisition_DT</b>
+    </div>
+</div>
+
+<div class="form-group row">
+    <label class="col-sm-12 col-md-2">Material Id</label>
+    <div class="col-sm-12 col-md-4">
+        : @Model.Material_Id
+    </div>
+    <label class="col-sm-12 col-md-2">Quantityy</label>
+    <div class="col-sm-12 col-md-4">
+        : @Model.Qty 
+    </div>
+</div>
+
+
+<div class="form-group row">
+    <label class="col-sm-12 col-md-2">Unit</label>
+    <div class="col-sm-12 col-md-4">
+        : @Model.Unit 
+    </div>
+    <label class="col-sm-12 col-md-2">Select</label>
+    <div class="col-sm-12 col-md-4">
+        @*: @Model.*@
+    </div>
+</div>
+
+
+@*@if (Model.mixDesignDtlList != null)
+{
+    if (Model.mixDesignDtlList.Count > 0)
+    {
+        <div style="color:red;font-size:18px;font-weight:bold;">
+            Design Mix : @Model.GRADE_NAME - Ingradients Details
+        </div>
+        <div class="table-responsive">
+            <table class="table table-bordered" style="font-size: 10px; padding: 0px; margin: 0px;width:100% " id="tblList">
+
+                <thead>
+                    <tr>
+                        <th style="width:200px;text-align:center;vertical-align:top;">Material</th>
+                        <th style="width:200px;text-align:center;vertical-align:top;">Brand</th>
+                        <th style="width:150px;text-align:center;vertical-align:top;">Unit</th>
+                        <th style="width:100px;text-align:center;vertical-align:top;">SSD Mix</th>
+                        <th style="width:100px;text-align:center;vertical-align:top;">Absorption</th>
+                        <th style="width:100px; text-align: center; vertical-align: top; ">Moisture</th>
+                        <th style="width:100px;text-align:center;vertical-align:top;">Correction Value</th>
+                        <th style="width:100px;text-align:center;vertical-align:top;">Correct Mix</th>
+                        <th style="width:100px; text-align: center; vertical-align: top;">Trail Batch</th>
+                        <th style="width:200px; text-align: center; vertical-align: top;">Material Batch No</th>
+                        </tr>
+                </thead>
+
+                <tbody id="tbodyList">
+                    @for (int i = 0; i < Model.mixDesignDtlList.Count(); i++)
+                    {
+
+                        <tr id="tr_@i">
+                            <td style="text-align: center;padding:10px;">
+                                @Model.mixDesignDtlList[i].Material_Name 
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                @Model.mixDesignDtlList[i].BRAND
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                @Model.mixDesignDtlList[i].UNIT
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                @if ( Model.mixDesignDtlList[i].SSD_MIX != 0)
+                                {
+                                    @Model.mixDesignDtlList[i].SSD_MIX
+                                }      
+                                
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                
+                                @if (Model.mixDesignDtlList[i].ABSORPTION != 0)
+                                {
+                                    @Model.mixDesignDtlList[i].ABSORPTION
+                                }
+                                
+                            </td>
+                             
+
+                            <td style="text-align: center;padding:10px;">  
+                                @if (Model.mixDesignDtlList[i].MOISTURE != 0)
+                                {
+                                    @Model.mixDesignDtlList[i].MOISTURE
+                                }
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                @Model.mixDesignDtlList[i].CORRECTION_VALUE
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                @Model.mixDesignDtlList[i].CORRECT_MIX
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                
+                                @if (Model.mixDesignDtlList[i].TRIAL_BATCH != 0)
+                                {
+                                    @Model.mixDesignDtlList[i].TRIAL_BATCH
+                                }
+                            </td>
+                            <td style="text-align: center;padding:10px;">
+                                @Model.mixDesignDtlList[i].MATERIAL_BATCH_NO
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+
+        </div>
+        <br />
+    }*@
+}
+
+
+
+
+

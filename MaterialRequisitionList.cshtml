@@ -1,0 +1,169 @@
+﻿@model BusinessLayer.Entity.Material_Req_List
+
+@{
+    ViewBag.Title = "MaterialRequisitionEntry";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+
+<script src="~/assets/js/jquery-2.1.4.min.js"></script>
+<script src="~/Scripts/Custom/customValidation.js"></script>
+
+@using (Html.BeginForm("MaterialRequisitionList", "Material", FormMethod.Post, new { @id = "frmMaterialRequisitionList" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+    
+    
+    
+    <div class="pd-20 card-box mb-30">
+        <div class="form-group row">
+            <label class="col-sm-12 col-md-1 col-form-label required">Location</label>
+            <div class="col-sm-12 col-md-3">
+                @Html.DropDownListFor(x => x.BRANCH_CODE, Model.BRANCH_LIST, "Select Location", new { @class = "custom-select2 form-control", @id = "ddlBranch", @data_placeholder = "Select Location", @style = "width: 100%" })
+                <span id="spnErr_ddlBranch" class="field-validation-error"></span>
+            </div>
+            <label class="col-sm-12 col-md-1 col-form-label">From Date</label>
+            <div class="col-sm-12 col-md-3">
+                @Html.TextBoxFor(x => x.From_DT, new { @class = "form-control date-picker", @id = "txtFromDT", @autocomplete = "off", @data_placeholder = "Select Date", @readOnly = true })
+                <span id="spnErr_txtFromDT" class="field-validation-error"></span>
+            </div>
+            <label class="col-sm-12 col-md-1 col-form-label">To Date</label>
+            <div class="col-sm-12 col-md-3">
+                @Html.TextBoxFor(x => x.To_DT, new { @class = "form-control date-picker", @id = "txtToDT", @autocomplete = "off", @data_placeholder = "Select Date", @readOnly = true })
+                <span id="spnErr_txtToDT" class="field-validation-error"></span>
+            </div>
+          </div>
+        
+
+            <div class="form-group row">
+                <div class="col-md-12" style="padding-top:5px; padding-bottom:15px; padding-right:13px;text-align:center;">
+                    <input type="button" class="btn btn-dark" value="Show" name="Show" style="width:auto;" id=" " />
+
+                    @Html.HiddenFor(x => x.Requisition_ID, new { @id = "hdnRequisition_ID" })
+                   
+                </div>
+            </div>
+        <div id="divPartial" style="display:none"></div>
+        </div>
+    
+      
+}
+
+<style>
+    .modal-dialog {
+        max-width: 1200px;
+        margin: 1.75rem auto;
+    }
+</style>
+
+<script>
+    $(document).ready(function () {
+
+        $("#btnShow").on("click", function () {
+            var url = '@Url.Action("_MaterialRequisitionList", "Material")';
+            window.location.href = url;
+        });
+
+        $(".date-picker").datepicker({
+            language: 'en',
+            autoClose: true,
+            dateFormat: 'dd MM yyyy'
+
+        });
+
+        $('.datetimepicker').datepicker({
+            onSelect: function (selectedDate) {
+                ValidateMinMax_Date();
+            }
+        });
+
+        function ValidateMinMax_Date() {
+            var errCnt = 0;
+
+            if($('#ddlBranch option:selected').val()=="")
+            {
+                $('#spnErr_ddlBranch').text('Select Branch').show();
+                errCnt = errCnt + 1;
+            }
+            else {
+                $('#spnErr_ddlBranch').text('').hide();
+            }
+
+            if ($('#txtFromDT').val() == '') {
+                $('#spnErr_txtFromDT').text('Select From Date').show();
+                errCnt = errCnt + 1;
+            }
+            else {
+                $('#spnErr_txtFromDT').text('').hide();
+            }
+
+            if ($('#txtToDT').val() == '') {
+                $('#spnErr_txtToDT').text('Select To Date').show();
+                errCnt = errCnt + 1;
+            }
+            else {
+                $('#spnErr_txtToDT').text('').hide();
+            }
+
+            //if (errCnt == 0) {
+            //    var fDate = $('#txtFromDT').val();
+            //    var tDate = $('#txtToDT').val();
+
+            //    if (Date.parse(fDate) > Date.parse(tDate)) {
+            //        $('#txtToDT').val('');
+            //        $('#lblMsg').text('To date should be greater than or equal to from date');
+            //        $('#alert-modal').modal('show');
+            //    }
+            //}
+        }
+
+
+        $("#frmMaterialRequisitionList").submit(function (e) {
+            List(e);
+            e.preventDefault();
+        });
+
+
+        
+        
+        function List(e) {
+            $("#divPartial").empty();
+            $("hdnRequisition_ID").val();
+
+            if ($('#txtFromDT').val() == '') {
+                $('#spnErr_txtFromDT').text('Select From Date').show();
+                return false;
+            }
+            else {
+                $('#spnErr_txtFromDT').text('').hide();
+            }
+
+            if ($('#txtToDT').val() == '') {
+                $('#spnErr_txtToDT').text('Select To Date').show();
+                return false;
+            }
+            else {
+                $('#spnErr_txtToDT').text('').hide();
+            }
+
+            if ($("#txtFromDT").val() != "" && $("#txtToDT").val() != "") {
+                if (CheckSession(e) == 1) {
+                    $("#divPartial").load("_MaterialRequisitionList/Material");
+                    $("#divPartial").css("display", "block");
+                    $('#divPartial').slideDown('slow');
+                }
+            }
+            else {
+                $("#divPartial").empty();
+                $('#divPartial').slideUp('slow');
+                alert('session expired!');
+            }
+        }
+
+        List(er);
+
+
+    });
+</script>
+

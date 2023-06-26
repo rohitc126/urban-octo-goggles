@@ -1,0 +1,273 @@
+﻿@model BusinessLayer.Entity.Material_Entry
+
+@{
+    ViewBag.Title = "MaterialRequisitionEntry";
+    Layout = "~/Views/Shared/_MainDashboard.cshtml";
+}
+
+<script src="~/assets/js/jquery-2.1.4.min.js"></script>
+<script src="~/Scripts/Custom/customValidation.js"></script>
+
+@using (Html.BeginForm("MaterialRequisitionEntry", "Material", FormMethod.Post, new { @id = "frmMaterialRequisitionEntry" }))
+{
+    @Html.AntiForgeryToken()
+    @Html.ValidationSummary(true)
+    Html.RenderPartial("_Alerts");
+    
+    
+    
+    <div class="pd-20 card-box mb-30">
+        <div class="form-group row">
+         
+            <label class="col-sm-12 col-md-2 col-form-label required">Requisition Date</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.TextBoxFor(x => x.Requisition_DT, new { @class = "form-control datetimepicker", @id = "txtRequisition_DT", @autocomplete = "off", @data_placeholder = "Select Requisition Date", @readOnly = true })
+                <span id="spnErr_txtRequisition_DT" class="field-validation-error"></span>
+            </div>
+            <label class="col-sm-12 col-md-2 col-form-label required">Location</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.BRANCH_CODE, Model.BRANCH_LIST, "Select Location", new { @class = "custom-select2 form-control", @id = "ddlBranch", @data_placeholder = "Select Location", @style = "width: 100%" })
+                <span id="spnErr_ddlBranch" class="field-validation-error"></span>
+            </div>
+        </div>
+        
+        <div class="form-group row">
+
+            <label class="col-sm-12 col-md-2 col-form-label required">Material</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.Material_Id, Model.Material_List, "Select Material", new { @class = "custom-select2 form-control", @id = "ddlMaterial", @data_placeholder = "Select Material", @style = "width: 100%" })
+                <span id="spnErr_ddlMaterial" class="field-validation-error"></span>
+            </div>
+            <label class="col-sm-12 col-md-2 col-form-label required">Brand Name</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.DropDownListFor(x => x.BRAND_ID, Model.BRAND_LIST, "Select BRAND", new { @class = "custom-select2 form-control", @id = "ddlBRAND", @data_placeholder = "Select BRAND", @style = "width: 100%" })
+                <span id="spnErr_ddlBRAND" class="field-validation-error"></span>
+            </div>
+        </div>
+        <div class="form-group row">
+        <label class="col-sm-12 col-md-2 col-form-label required">Quantity</label>
+        <div class="col-sm-12 col-md-4">
+            @Html.TextBoxFor(x => x.Qty, new { @class = "form-control numeric", @id = "txtQuantity", @autocomplete = "off", @style = "width: 100%" })
+            <span id="spnErr_txtQuantity" class="field-validation-error"></span>
+        </div>
+        <label class="col-sm-12 col-md-2 col-form-label required">Unit</label>
+        <div class="col-sm-12 col-md-4">
+            @Html.DropDownListFor(x => x.Unit, Model.Unit_List, "Select Unit", new { @class = "custom-select2 form-control", @id = "ddlUnit", @data_placeholder = "Select Unit", @style = "width: 100%" })
+            <span id="spnErr_ddlUnit" class="field-validation-error"></span>
+        </div>
+    </div>
+
+        <div class="form-group row">
+
+            <label class="col-sm-12 col-md-2 col-form-label required">Expected Delivery Date</label>
+            <div class="col-sm-12 col-md-4">
+                @Html.TextBoxFor(x => x.Expected_DT, new { @class = "form-control datetimepicker", @id = "txtExpected_DT", @autocomplete = "off", @data_placeholder = "Expected Delivery Date", @readOnly = true })
+                <span id="spnErr_txtExpected_DT" class="field-validation-error"></span>
+            </div>
+            </div>
+
+
+            <div class="form-group row">
+                <div class="col-md-12" style="padding-top:5px; padding-bottom:15px; padding-right:13px;text-align:center;">
+                    <input type="submit" class="btn btn-success" value="Save" name="Save" style="width:auto;" id="btnSubmit" />
+                </div>
+            </div>
+            @Html.HiddenFor(x => x.Requisition_ID, new { @id = "hdnRequisition_ID" })
+        </div>
+    
+        @*<div class="modal fade bs-example-modal-lg" id="model-Sheet-dtl" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" aria-hidden="true" style="width:100%;">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title" id="myLargeModalLabel"> material requisition List</h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                </div>
+
+                <div class="modal-body" style="height: 500px; max-height: 500px; overflow: auto;">
+                    <div id="divPartialModel"></div>
+                </div>*@
+                   <div id="divPartial"></div>
+   <div class="modal fade bd-example-modal-lg" id="BAActionViewModal" role="dialog" data-backdrop="static" data-keyboard="false" aria-labelledby="BAActionViewModalLabel" aria-hidden="true" style="z-index:3000;">
+    <div class="modal-dialog modal-lg modal-dialog-centered" role="document" style="z-index:3000;width:60vw;">
+        <div class="modal-content" style="margin-top:1%;">
+            <div class="modal-header" style="height:50px;">
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <h5 class="modal-title" id="BAActionViewModalLabel" style="font-weight:bold;">List Of Material Requisition Entry</h5>
+            </div>
+            <div class="modal-body modal-lg modal-dialog-centered" style="padding: 0px 1px; width: 60vw; max-height: 550px; overflow: hidden;">
+
+                <div id="no-more-tables" style="padding: 1px 5px 1px 15px;">
+                    <div id="BAViewModalBody" class="row" style="padding-bottom: 5px; display: none;"></div>
+      
+
+                </div>
+
+                </div>
+
+
+
+                </div>
+            </div>
+    
+    </div>
+    
+    
+    
+}
+
+<script>
+  
+    $(document).ready(function () {
+
+        $("#btnSubmit").click(function (e) {
+          
+        flag = validateForm();
+
+      
+        if (flag > 0) {
+        
+            e.preventDefault();
+            return false;
+        }
+
+    });
+
+    function validateForm() {
+
+
+        if ($("#txtRequisition_DT").val() == "") {
+            $('#spnErr_txtRequisition_DT').text('Select Requisition Date').show();
+               
+        }
+        else {
+            $('#spnErr_txtRequisition_DT').text('').hide();
+        }
+
+        if ($("#ddlBranch option:selected").val() == "") {
+            $('#spnErr_ddlBranch').text('Select Location').show();
+               
+        }
+        else {
+            $('#spnErr_ddlBranch').text('').hide();
+        }
+        if ($("#ddlMaterial option:selected").val() == "") {
+            $('#spnErr_ddlMaterial').text('Select Material').show();
+               
+        }
+        else {
+            $('#spnErr_ddlMaterial').text('').hide();
+        }
+        if ($("#ddlBRAND option:selected").val() == "") {
+            $('#spnErr_ddlBRAND').text('Select Brand').show();
+               
+        }
+        else {
+            $('#spnErr_ddlBRAND').text('').hide();
+        }
+        if ($("#txtQuantity").val() == "") {
+            $('#spnErr_txtQuantity').text('Select Quantity').show();
+           
+        }
+        else {
+            $('#spnErr_txtQuantity').text('').hide();
+        }
+
+        if ($("#ddlUnit option:selected").val() == ""){
+            $('#spnErr_ddlUnit').text('Select Unit').show();
+        }
+        else {
+            $('#spnErr_ddlUnit').text('').hide();
+        }
+        
+        if ($("#txtExpected_DT").val() == "") {
+            $('#spnErr_txtExpected_DT').text('Select Expected Delivery Date').show();
+            return 1;
+        }
+        else { $('#spnErr_txtExpected_DT').text('').hide();
+        } 
+        return 0;
+
+    }
+
+    });
+
+
+</script>
+
+        <style>
+            input[type='checkbox'] {
+                -webkit-appearance: block;
+                width: 30px;
+                height: 30px;
+                background: white;
+                border-radius: 5px;
+                border: 2px solid #555;
+            }
+
+        input[type='checkbox']:checked {
+            background: #abd;
+        }
+
+
+        input[type=radio] {
+            border: 0px;
+            width: 100%;
+            height: 2em;
+        }
+
+        .lblPading {
+            padding-left: 20px;
+            padding-right: 20px;
+            font-weight: bold;
+        }
+        </style>
+
+        <style>
+            #tblSummaryList td {
+                font-size: 20px;
+            }
+
+    #tblSummaryList thead th {
+        font-size: 20px;
+    }
+
+        .table thead th {
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 0;
+            padding-left: 1rem;
+            background-color: #000000;
+            color: white;
+        }
+
+        .table td {
+            font-weight: 600;
+            font-size: 14px;
+            border-bottom: 0;
+            padding-left: 1rem;
+        }
+
+        .table td, .table th {
+            padding: 0.25rem;
+            vertical-align: top;
+            border: 1px solid #dee2e6;
+        }
+
+        .FinalTotal {
+            font-size: 20px;
+            background-color: #efaa0a;
+        }
+
+        .tdClass {
+            font-size: 20px;
+            background-color: #f0f1f3;
+        }
+
+        .tdevenClass {
+            font-size: 20px;
+            background-color: #ffffe9;
+        }
+        </style>
+
